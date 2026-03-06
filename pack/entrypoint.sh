@@ -74,7 +74,7 @@ do
 done
 
 echo "Generating JsonSerializerContext..."
-dotnet run /opt/build-tools/generate-json-context.cs -- $SRC $PACKAGE_NAME
+dotnet run /opt/build-tools/generate-json-context.cs -- $SRC $PACKAGE_NAME $AVRO_FOLDER
 
 echo "Restoring packages..."
 dotnet restore $PROJ
