@@ -3,6 +3,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
     <DefineConstants>$(DefineConstants)</DefineConstants>
     <DebugSymbols>True</DebugSymbols>
     <DebugType>portable</DebugType>
