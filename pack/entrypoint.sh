@@ -58,6 +58,7 @@ echo "Creating $PACKAGE_NAME project..."
 dotnet new classlib --name $PACKAGE_NAME --output $SRC/$PACKAGE_NAME --framework net10.0
 dotnet add $SRC/$PACKAGE_NAME/$PACKAGE_NAME.csproj package Apache.Avro --version 1.12.1
 rm -f ./$SRC/$PACKAGE_NAME/Class1.cs
+# Apache.Avro is only needed for avrogen codegen - it will be removed from the package after generation
 
 echo "Adding Avro files..."
 
@@ -72,6 +73,21 @@ do
   echo "Avro schema file found at '$file'. Trying to generate the corresponding C# class at '$PACKAGE_SRC_FOLDER'..."
   avrogen -s $file $PACKAGE_SRC_FOLDER
 done
+
+echo "Removing Avro dependency and replacing with IGivenwellEvent..."
+# Remove Avro usings, ISpecificRecord -> IGivenwellEvent
+find $PACKAGE_SRC_FOLDER -name "*.cs" | while read file; do
+  sed -i \
+    -e '/using global::Avro/d' \
+    -e 's/global::Avro\.Specific\.ISpecificRecord/IGivenwellEvent/g' \
+    -e 's/: ISpecificRecord/: IGivenwellEvent/g' \
+    "$file"
+done
+# Strip Avro-generated Schema property, _SCHEMA field, Get and Put methods
+EVENT_FILES=$(find $(realpath $PACKAGE_SRC_FOLDER) -name "*.cs" -exec grep -l "IGivenwellEvent" {} \;)
+dotnet run /opt/build-tools/strip-avro.cs -- $EVENT_FILES
+# Remove the Apache.Avro package reference - it was only needed for avrogen codegen
+dotnet remove $PROJ package Apache.Avro
 
 echo "Generating JsonSerializerContext..."
 dotnet run /opt/build-tools/generate-json-context.cs -- $(realpath $SRC) $PACKAGE_NAME $(realpath $AVRO_FOLDER)

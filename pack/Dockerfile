@@ -5,6 +5,7 @@ ENV PATH="${PATH}:/root/.dotnet/tools"
 
 COPY Directory.Build.props /opt/build-tools/Directory.Build.props.template
 COPY generate-json-context.cs /opt/build-tools/generate-json-context.cs
+COPY strip-avro.cs /opt/build-tools/strip-avro.cs
 COPY entrypoint.sh /bin/entrypoint.sh
 RUN chmod +x /bin/entrypoint.sh
 
